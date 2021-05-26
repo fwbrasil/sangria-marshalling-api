@@ -9,13 +9,11 @@ import scala.collection.mutable.{Set => MutableSet}
 class ArrayMapBuilder[T](keys: Seq[String]) extends Iterable[(String, T)] {
   private val elements = new Array[(String, T)](keys.size)
   private val indexLookup = keys.zipWithIndex.toMap
-  private val indexesSet = MutableSet[Int]()
 
   def add(key: String, elem: T) = {
     val idx = indexLookup(key)
 
     elements(idx) = key -> elem
-    indexesSet += idx
 
     this
   }
@@ -23,7 +21,7 @@ class ArrayMapBuilder[T](keys: Seq[String]) extends Iterable[(String, T)] {
   override lazy val toList: List[(String, T)] = {
     val builder = List.newBuilder[(String, T)]
 
-    for (i <- 0 to elements.length if indexesSet contains i)
+    for (i <- 0 to elements.length if elements(i) != null)
       builder += elements(i)
 
     builder.result()
@@ -32,7 +30,7 @@ class ArrayMapBuilder[T](keys: Seq[String]) extends Iterable[(String, T)] {
   lazy val toMap: Map[String, T] = {
     val builder = Map.newBuilder[String, T]
 
-    for (i <- 0 to elements.length if indexesSet contains i)
+    for (i <- 0 to elements.length if elements(i) != null)
       builder += elements(i)
 
     builder.result()
@@ -41,7 +39,7 @@ class ArrayMapBuilder[T](keys: Seq[String]) extends Iterable[(String, T)] {
   lazy val toListMap: ListMap[String, T] = {
     val builder = ListMap.newBuilder[String, T]
 
-    for (i <- 0 to elements.length if indexesSet contains i)
+    for (i <- 0 to elements.length if elements(i) != null)
       builder += elements(i)
 
     builder.result()
@@ -52,7 +50,7 @@ class ArrayMapBuilder[T](keys: Seq[String]) extends Iterable[(String, T)] {
   override lazy val toVector: Vector[(String, T)] = {
     val builder = new VectorBuilder[(String, T)]
 
-    for (i <- 0 to elements.length if indexesSet contains i)
+    for (i <- 0 to elements.length if elements(i) != null)
       builder += elements(i)
 
     builder.result()
@@ -67,7 +65,7 @@ class ArrayMapBuilder[T](keys: Seq[String]) extends Iterable[(String, T)] {
         val next = current + 1
 
         if (next >= elements.length) -1
-        else if (indexesSet.contains(next)) next
+        else if (elements(next) != null) next
         else nextIndex(next)
       }
 
